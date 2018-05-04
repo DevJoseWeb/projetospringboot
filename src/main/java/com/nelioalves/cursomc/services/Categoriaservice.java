@@ -10,13 +10,13 @@ import com.nelioalves.cursomc.repositories.CategoriaRepository;
 
 @Service
 public class Categoriaservice {
-	
+
 	@Autowired
 	private CategoriaRepository repository;
+
 	public Optional<Categoria> buscar(Integer id) {
 		Optional<Categoria> obj = repository.findById(id);
-		
+
 		return obj;
 	}
-
 }
