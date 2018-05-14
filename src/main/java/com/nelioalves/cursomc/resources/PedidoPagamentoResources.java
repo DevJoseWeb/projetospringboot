@@ -1,0 +1,28 @@
+package com.nelioalves.cursomc.resources;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.nelioalves.cursomc.domain.Pedido;
+import com.nelioalves.cursomc.services.PedidoPagamentoService;
+
+import javassist.tools.rmi.ObjectNotFoundException;
+
+@RestController
+@RequestMapping(value = "/pedidopagamento")
+public class PedidoPagamentoResources {
+
+	@Autowired
+	private PedidoPagamentoService pedidoPagamentoService;
+	
+	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+	public ResponseEntity<?> find(@PathVariable Integer id) throws ObjectNotFoundException {
+		Pedido obj = pedidoPagamentoService.find(id);
+
+		return ResponseEntity.ok().body(obj);
+	}
+}
