@@ -2,7 +2,6 @@ package com.nelioalves.cursomc;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -17,7 +16,7 @@ import com.nelioalves.cursomc.domain.Estado;
 import com.nelioalves.cursomc.domain.ItemPedido;
 import com.nelioalves.cursomc.domain.Pagamento;
 import com.nelioalves.cursomc.domain.PagamentoComBoleto;
-import com.nelioalves.cursomc.domain.PagamentoComCartão;
+import com.nelioalves.cursomc.domain.PagamentoComCartao;
 import com.nelioalves.cursomc.domain.Pedido;
 import com.nelioalves.cursomc.domain.Produto;
 import com.nelioalves.cursomc.domain.enums.EstadoPagamento;
@@ -108,7 +107,7 @@ public class CursomcApplication implements CommandLineRunner {
 		Pedido ped1 = new Pedido(null, sdf.parse("30/09/2017 10:32"), cli1, e1);
 		Pedido ped2 = new Pedido(null, sdf.parse("10/10/2017 19:37"), cli1, e2);
 
-		Pagamento pagto1 = new PagamentoComCartão(null, EstadoPagamento.QUITADO, ped1, 6);
+		Pagamento pagto1 = new PagamentoComCartao(null, EstadoPagamento.QUITADO, ped1, 6);
 		ped1.setPagamento(pagto1);
 
 		Pagamento pagto2 = new PagamentoComBoleto(null, EstadoPagamento.PENDENTE, ped2, sdf.parse("20/10/2017 00:00"),
@@ -120,17 +119,16 @@ public class CursomcApplication implements CommandLineRunner {
 		pedidoRepository.saveAll(Arrays.asList(ped1, ped2));
 		pagamentoRepository.saveAll(Arrays.asList(pagto1, pagto2));
 
-		ItemPedido ip1 = new ItemPedido(null, null, 0.0, 1, p1.getPreco());
-		ped1.setItens((Set<ItemPedido>) ip1);
-		p1.setItens((Set<ItemPedido>) ip1);
+		ItemPedido ip1 = new ItemPedido(ped1, p1, 0.0, 1, 2000.00);
+		ItemPedido ip2 = new ItemPedido(ped1, p3, 0.0, 2, 80.00);
+		ItemPedido ip3 = new ItemPedido(ped2, p2, 100.00, 1, 800.00);
 
-		ItemPedido ip2 = new ItemPedido(null, null, 0.0, 2, p3.getPreco());
-		ped1.setItens((Set<ItemPedido>) ip2);
-		p3.setItens((Set<ItemPedido>) ip2);
+		ped1.getItens().addAll(Arrays.asList(ip1, ip2));
+		ped2.getItens().addAll(Arrays.asList(ip3));
 
-		ItemPedido ip3 = new ItemPedido(null, null, 100.0, 1, p2.getPreco());
-		ped2.setItens((Set<ItemPedido>) ip3);
-		p2.setItens((Set<ItemPedido>) ip3);
+		p1.getItens().addAll(Arrays.asList(ip1));
+		p2.getItens().addAll(Arrays.asList(ip3));
+		p3.getItens().addAll(Arrays.asList(ip2));
 
 		itemPedidoRepositpory.saveAll(Arrays.asList(ip1, ip2, ip3));
 	}
