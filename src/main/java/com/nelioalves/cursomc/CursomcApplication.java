@@ -123,17 +123,15 @@ public class CursomcApplication implements CommandLineRunner {
 		ItemPedido ip1 = new ItemPedido(null, null, 0.0, 1, p1.getPreco());
 		ped1.setItens((Set<ItemPedido>) ip1);
 		p1.setItens((Set<ItemPedido>) ip1);
-		
+
 		ItemPedido ip2 = new ItemPedido(null, null, 0.0, 2, p3.getPreco());
 		ped1.setItens((Set<ItemPedido>) ip2);
 		p3.setItens((Set<ItemPedido>) ip2);
 
-		
 		ItemPedido ip3 = new ItemPedido(null, null, 100.0, 1, p2.getPreco());
 		ped2.setItens((Set<ItemPedido>) ip3);
 		p2.setItens((Set<ItemPedido>) ip3);
-		
+
 		itemPedidoRepositpory.saveAll(Arrays.asList(ip1, ip2, ip3));
-		
 	}
 }
