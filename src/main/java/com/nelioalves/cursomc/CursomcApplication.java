@@ -122,16 +122,6 @@ public class CursomcApplication implements CommandLineRunner {
 		ItemPedido ip1 = new ItemPedido(ped1, p1, 0.0, 1, 2000.00);
 		ItemPedido ip2 = new ItemPedido(ped1, p3, 0.0, 2, 80.00);
 		ItemPedido ip3 = new ItemPedido(ped2, p2, 100.00, 1, 800.00);
-<<<<<<< HEAD
-
-		ped1.getItens().addAll(Arrays.asList(ip1, ip2));
-		ped2.getItens().addAll(Arrays.asList(ip3));
-
-		p1.getItens().addAll(Arrays.asList(ip1));
-		p2.getItens().addAll(Arrays.asList(ip3));
-		p3.getItens().addAll(Arrays.asList(ip2));
-
-=======
 		
 		ped1.getItens().addAll(Arrays.asList(ip1,ip2));
 		ped2.getItens().addAll(Arrays.asList(ip3));
@@ -140,7 +130,6 @@ public class CursomcApplication implements CommandLineRunner {
 		p2.getItens().addAll(Arrays.asList(ip3));
 		p3.getItens().addAll(Arrays.asList(ip2));
 		
->>>>>>> 5c873c0e7121cc31c4091342e7ca19752339d432
 		itemPedidoRepositpory.saveAll(Arrays.asList(ip1, ip2, ip3));
 	}
 }
