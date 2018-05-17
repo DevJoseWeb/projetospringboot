@@ -13,11 +13,11 @@ public class CategoriaDTO implements Serializable {
 	public CategoriaDTO() {
 		super();
 	}
-//	
-//	public CategoriaDTO(){
-//		id = obj.getId();
-//		nome = obj.getNome();
-//	}
+	
+	public CategoriaDTO(Categoria obj){
+		id = obj.getId();
+		nome = obj.getNome();
+	}
 
 	public Integer getId() {
 		return id;

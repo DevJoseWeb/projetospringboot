@@ -53,11 +53,12 @@ public class CategoriaResource {
 		return ResponseEntity.noContent().build();
 	}
 	
-//	@RequestMapping (method = RequestMethod.GET)  
-//	public ResponseEntity <List<Categoria>> findAll() throws ObjectNotFoundException {
-//		List<Categoria> list = categoriaService.findAll();
-//		return ResponseEntity.ok().body(list);
-//	}
+	// @RequestMapping (method = RequestMethod.GET)
+	// public ResponseEntity <List<Categoria>> findAll() throws
+	// ObjectNotFoundException {
+	// List<Categoria> list = categoriaService.findAll();
+	// return ResponseEntity.ok().body(list);
+	// }
 	
 	@RequestMapping(method = RequestMethod.GET)
 	public List<CategoriaDTO> findAll() throws ObjectNotFoundException, UnexpectedException {
@@ -70,13 +71,12 @@ public class CategoriaResource {
 
 		return listDto;
 	}
-	
-	public CategoriaDTO converterCategoriaToDTO(Categoria categoria)
-			throws UnexpectedException{
+
+	private CategoriaDTO converterCategoriaToDTO(Categoria categoria) throws UnexpectedException {
 		CategoriaDTO dto = new CategoriaDTO();
 		dto.setId(categoria.getId());
 		dto.setNome(categoria.getNome());
-		
+
 		return dto;
 	}
 }
