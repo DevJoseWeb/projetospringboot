@@ -1,12 +1,17 @@
 package com.nelioalves.cursomc.services;
 
+import java.rmi.UnexpectedException;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import com.nelioalves.cursomc.domain.Categoria;
+import com.nelioalves.cursomc.dto.CategoriaDTO;
 import com.nelioalves.cursomc.repositories.CategoriaRepository;
 
 import javassist.tools.rmi.ObjectNotFoundException;
@@ -62,4 +67,18 @@ public class CategoriaService {
 			throw new ObjectNotFoundException("Não foram encontradas categorias");
 		}
 	  }
+	
+	public CategoriaDTO converterCategoriaToDTO(Categoria categoria) throws UnexpectedException {
+		CategoriaDTO dto = new CategoriaDTO();
+		dto.setId(categoria.getId());
+		dto.setNome(categoria.getNome());
+
+		return dto;
+	}
+	
+	public Page<Categoria> findPage(Integer page, Integer linesPerPage, String orderBy, String direction){
+		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
+		return categoriaRepository.findAll(pageRequest);
+
+	}
 }
