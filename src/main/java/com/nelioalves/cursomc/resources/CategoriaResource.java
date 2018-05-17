@@ -1,6 +1,8 @@
 package com.nelioalves.cursomc.resources;
 
 import java.net.URI;
+import java.rmi.UnexpectedException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +26,6 @@ public class CategoriaResource {
 
 	@Autowired
 	private CategoriaService categoriaService;
-
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public ResponseEntity<?> find(@PathVariable Integer id) throws ObjectNotFoundException {
 		Categoria obj = categoriaService.find(id);
@@ -58,16 +59,27 @@ public class CategoriaResource {
 //		return ResponseEntity.ok().body(list);
 //	}
 	
-	@RequestMapping (method = RequestMethod.GET)  
-	public ResponseEntity <List<CategoriaDTO>> findAll() throws ObjectNotFoundException {
-		
-		List<Categoria> list = categoriaService.findAll();
-		for (Categoria categoria : list) {
-			
+	@RequestMapping(method = RequestMethod.GET)
+	public List<CategoriaDTO> findAll() throws ObjectNotFoundException, UnexpectedException {
+		List<CategoriaDTO> listDto = new ArrayList<CategoriaDTO>();
+		List<Categoria> listCategoria = categoriaService.findAll();
+
+		for (Categoria categoria : listCategoria) {
+			listDto.add(converterCategoriaToDTO(categoria));
 		}
-		return ResponseEntity.ok().body(list);
+
+		return listDto;
 	}
 	
+	public CategoriaDTO converterCategoriaToDTO(Categoria categoria)
+			throws UnexpectedException{
+		CategoriaDTO dto = new CategoriaDTO();
+		dto.setId(categoria.getId());
+		dto.setNome(categoria.getNome());
+		
+		return dto;
+	}
+}
 	
 	
-  }
+  
