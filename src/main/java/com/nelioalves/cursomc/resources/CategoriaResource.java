@@ -29,13 +29,13 @@ public class CategoriaResource {
 	@Autowired
 	private CategoriaService categoriaService;
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public ResponseEntity<?> find(@PathVariable Integer id) throws ObjectNotFoundException {
+	public ResponseEntity<?> find(@PathVariable Integer id) throws ObjectNotFoundException  {
 		Categoria obj = categoriaService.find(id);
 		return ResponseEntity.ok().body(obj);
 	}
 
 	@RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<Void> insert(@RequestBody Categoria obj) {
+	public ResponseEntity<Void> insert(@RequestBody Categoria obj) throws ObjectNotFoundException {
 		obj = (Categoria) categoriaService.insert(obj);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
 		return ResponseEntity.created(uri).build();
@@ -73,22 +73,21 @@ public class CategoriaResource {
 
 		return listDto;
 	}
-	
+
 	@RequestMapping(value = "/page", method = RequestMethod.GET)
 	public ResponseEntity<ArrayList<CategoriaDTO>> findPage(
 			@RequestParam(value = "page", defaultValue = "0") Integer page,
 			@RequestParam(value = "linesPerPage", defaultValue = "24") Integer linesPerPage,
 			@RequestParam(value = "orderBy", defaultValue = "nome") String orderBy,
 			@RequestParam(value = "direction", defaultValue = "ASC") String direction) throws UnexpectedException {
-
+		
 		Page<Categoria> listPage = categoriaService.findPage(page, linesPerPage, orderBy, direction);
 		ArrayList<CategoriaDTO> listPageDto = new ArrayList<CategoriaDTO>();
 		for (Categoria listPageCategoria : listPage) {
 			listPageDto.add(categoriaService.converterCategoriaToDTO(listPageCategoria));
 		}
-
 		return ResponseEntity.ok().body(listPageDto);
-	}
+      }
 }
 	
 

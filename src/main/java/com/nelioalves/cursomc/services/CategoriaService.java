@@ -28,9 +28,38 @@ public class CategoriaService {
 				"Objeto não encontrado! Id: " + id + ", Tipo: " + Categoria.class.getName()));
 	}
 
-	public Object insert(Categoria obj) {
+	public Object insert(Categoria obj) throws ObjectNotFoundException {
 		obj.setId(null);
-		return categoriaRepository.save(obj);
+		if (verificaNome(obj)) {
+			return categoriaRepository.save(obj);
+		}
+		throw new ObjectNotFoundException("O campo nome deve conter apenas letras! Id: " + obj + ", Tipo: " + Categoria.class.getName());
+	}
+
+	public boolean verificaNome(Categoria obj) throws ObjectNotFoundException {
+		if (obj.getNome().trim().equals("")) {
+			return false;
+		}
+
+		if (obj.getNome().length() < 5 || obj.getNome().length() > 20) {
+			return false;
+		}
+
+		List<Categoria> categoria = categoriaRepository.findAll();
+		for (Categoria categorias : categoria) {
+			if (obj.getNome().equals(categorias.getNome())) {
+				return false;
+			}
+		}
+
+		String[] caractere = { "0", "1", "2", "3", "4", "5", "6", 
+		  "7", "8", "9", "@", "!", "*", "-", "=", "/", "?", "_" };
+		for (String caracteres : caractere) {
+			if (obj.getNome().contains(caracteres)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public Object update(Categoria obj) throws ObjectNotFoundException {
@@ -42,7 +71,7 @@ public class CategoriaService {
 			throw new ObjectNotFoundException(
 					"Objeto não encontrado! Id: " + obj + ", Tipo: " + Categoria.class.getName());
 		}
-	  }
+	}
 
 	public void delete(Integer id) throws ObjectNotFoundException {
 		{
@@ -55,19 +84,19 @@ public class CategoriaService {
 				categoriaRepository.deleteById(id);
 			} catch (NullPointerException e) {
 				throw new ObjectNotFoundException("A Categoria " + nomeCategoria + " possui os produtos " + nomeProduto
-					  + " e não pode ser excluida " + Categoria.class.getName());
+						+ " e não pode ser excluida " + Categoria.class.getName());
 			}
-		  }
-	    }
-	
+		}
+	}
+
 	public List<Categoria> findAll() throws ObjectNotFoundException {
 		try {
 			return categoriaRepository.findAll();
 		} catch (NullPointerException e) {
 			throw new ObjectNotFoundException("Não foram encontradas categorias");
 		}
-	  }
-	
+	}
+
 	public CategoriaDTO converterCategoriaToDTO(Categoria categoria) throws UnexpectedException {
 		CategoriaDTO dto = new CategoriaDTO();
 		dto.setId(categoria.getId());
@@ -75,8 +104,8 @@ public class CategoriaService {
 
 		return dto;
 	}
-	
-	public Page<Categoria> findPage(Integer page, Integer linesPerPage, String orderBy, String direction){
+
+	public Page<Categoria> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
 		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
 		return categoriaRepository.findAll(pageRequest);
 
