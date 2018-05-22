@@ -33,7 +33,8 @@ public class CategoriaService {
 		if (verificaNome(obj)) {
 			return categoriaRepository.save(obj);
 		}
-		throw new ObjectNotFoundException("O campo nome deve conter apenas letras! Id: " + obj + ", Tipo: " + Categoria.class.getName());
+		throw new ObjectNotFoundException(
+				"O campo nome deve conter apenas letras! Id: " + obj + ", Tipo: " + Categoria.class.getName());
 	}
 
 	public boolean verificaNome(Categoria obj) throws ObjectNotFoundException {
@@ -52,8 +53,8 @@ public class CategoriaService {
 			}
 		}
 
-		String[] caractere = { "0", "1", "2", "3", "4", "5", "6", 
-		  "7", "8", "9", "@", "!", "*", "-", "=", "/", "?", "_" };
+		String[] caractere = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "@", "!", "*", "-", "=", "/", "?",
+				"_" };
 		for (String caracteres : caractere) {
 			if (obj.getNome().contains(caracteres)) {
 				return false;
@@ -101,7 +102,7 @@ public class CategoriaService {
 		CategoriaDTO dto = new CategoriaDTO();
 		dto.setId(categoria.getId());
 		dto.setNome(categoria.getNome());
-
+		
 		return dto;
 	}
 

@@ -70,19 +70,18 @@ public class CategoriaResource {
 		for (Categoria categoria : listCategoria) {
 			listDto.add(categoriaService.converterCategoriaToDTO(categoria));
 		}
-
 		return listDto;
 	}
 
 	@RequestMapping(value = "/page", method = RequestMethod.GET)
-	public ResponseEntity<ArrayList<CategoriaDTO>> findPage(
+	public ResponseEntity<List<CategoriaDTO>> findPage(
 			@RequestParam(value = "page", defaultValue = "0") Integer page,
 			@RequestParam(value = "linesPerPage", defaultValue = "24") Integer linesPerPage,
 			@RequestParam(value = "orderBy", defaultValue = "nome") String orderBy,
 			@RequestParam(value = "direction", defaultValue = "ASC") String direction) throws UnexpectedException {
 		
 		Page<Categoria> listPage = categoriaService.findPage(page, linesPerPage, orderBy, direction);
-		ArrayList<CategoriaDTO> listPageDto = new ArrayList<CategoriaDTO>();
+		List<CategoriaDTO> listPageDto = new ArrayList<CategoriaDTO>();
 		for (Categoria listPageCategoria : listPage) {
 			listPageDto.add(categoriaService.converterCategoriaToDTO(listPageCategoria));
 		}
