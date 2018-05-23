@@ -63,15 +63,11 @@ public class CategoriaService {
 		return true;
 	}
 
-	public Object update(Categoria obj) throws ObjectNotFoundException {
-		try {
-			find(obj.getId());
-			return categoriaRepository.save(obj);
+	public  Categoria update(Categoria obj) throws ObjectNotFoundException  {
 
-		} catch (NullPointerException e) {
-			throw new ObjectNotFoundException(
-					"Objeto não encontrado! Id: " + obj + ", Tipo: " + Categoria.class.getName());
-		}
+			Categoria newObj = find(obj.getId());
+			updateData(newObj, obj);
+			return categoriaRepository.save(newObj);
 	}
 
 	public void delete(Integer id) throws ObjectNotFoundException {
@@ -96,6 +92,10 @@ public class CategoriaService {
 		} catch (NullPointerException e) {
 			throw new ObjectNotFoundException("Não foram encontradas categorias");
 		}
+	}
+	
+	public void updateData(Categoria newObj, Categoria obj) {
+		newObj.setNome(obj.getNome());
 	}
 
 	public CategoriaDTO converterCategoriaToDTO(Categoria categoria) throws UnexpectedException {

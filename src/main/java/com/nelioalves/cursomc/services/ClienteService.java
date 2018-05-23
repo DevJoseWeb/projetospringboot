@@ -1,7 +1,9 @@
 package com.nelioalves.cursomc.services;
 
 import java.rmi.UnexpectedException;
+import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -29,23 +31,29 @@ public class ClienteService {
 
 	public Object insert(Cliente obj) throws ObjectNotFoundException {
 		obj.setId(null);
-		// if (verificaNome(obj)) {
-		return clienteRepository.save(obj);
-		// }
-		// throw new ObjectNotFoundException(
-		// "O campo nome deve conter apenas letras! Id: " + obj + ", Tipo: " +
-		// Cliente.class.getName());
+		if (verificaNome(obj)) {
+			return clienteRepository.save(obj);
+		}
+		throw new ObjectNotFoundException(
+				"O campo nome deve conter apenas letras! Id: " + obj + ", Tipo: " + Cliente.class.getName());
 	}
 
 	public Object update(Cliente obj) throws ObjectNotFoundException {
-		try {
-			find(obj.getId());
-			return clienteRepository.save(obj);
+		Cliente newObj = find(obj.getId());
+		updateData(newObj, obj);
+		return clienteRepository.save(newObj);
 
-		} catch (NullPointerException e) {
-			throw new ObjectNotFoundException(
-					"Objeto não encontrado! Id: " + obj + ", Tipo: " + Cliente.class.getName());
-		}
+		// if (verificaNome(newObj)) {
+		//
+		// if (validaEmail(newObj)) {
+		// return clienteRepository.save(newObj);
+		// }
+		// throw new ObjectNotFoundException(
+		// "E-mail inválido! Id: " + newObj + ", Tipo: " + Cliente.class.getName());
+		// }
+		// throw new ObjectNotFoundException(
+		// "O campo nome deve conter apenas letras! Id: " + newObj + ", Tipo: " +
+		// Cliente.class.getName());
 	}
 
 	public Page<Cliente> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
@@ -53,24 +61,17 @@ public class ClienteService {
 		return clienteRepository.findAll(pageRequest);
 	}
 
-	// public void delete(Integer id) throws ObjectNotFoundException {
-	// {
-	// String nomeCliente = null;
-	// String nomeProduto = null;
-	// try {
-	// nomeCliente = clienteRepository.getOne(id).getNome();
-	// nomeProduto = clienteRepository.getOne(id).getCpfOuCnpj();
-	// nomeProduto = clienteRepository.getOne(id).getEmail();
-	//
-	// find(id);
-	// clienteRepository.deleteById(id);
-	// } catch (NullPointerException e) {
-	// throw new ObjectNotFoundException("A Cliente " + nomeCliente + " possui os
-	// produtos " + nomeProduto
-	// + " e não pode ser excluida " + Cliente.class.getName());
-	// }
-	// }
-	// }
+	public void delete(Integer id) throws ObjectNotFoundException {
+		{
+			try {
+				find(id);
+				clienteRepository.deleteById(id);
+				
+			} catch (NullPointerException e) {
+				throw new ObjectNotFoundException("O cliente não pode ser excluido");
+			}
+		}
+	}
 
 	public ClienteDTO converterClienteToDTO(Cliente cliente) throws UnexpectedException {
 		ClienteDTO dto = new ClienteDTO();
@@ -82,7 +83,50 @@ public class ClienteService {
 
 	public Cliente fromDTO(ClienteDTO dto) {
 		return new Cliente(dto.getId(), dto.getNome(), dto.getEmail(), null, null);
-
 	}
 
+	public Cliente updateData(Cliente newObj, Cliente obj) {
+		newObj.setNome(obj.getNome());
+		newObj.setEmail(obj.getEmail());
+		return newObj;
+	}
+
+	public boolean verificaNome(Cliente obj) throws ObjectNotFoundException {
+		if (obj.getNome().trim().equals("")) {
+			return false;
+		}
+
+		if (obj.getNome().length() < 5 || obj.getNome().length() > 20) {
+			return false;
+		}
+
+		List<Cliente> cliente = clienteRepository.findAll();
+		for (Cliente clientes : cliente) {
+			if (obj.getNome().equals(clientes.getNome())) {
+				return false;
+			}
+		}
+
+		String[] caractere = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "@", "!", "*", "-", "=", "/", "?",
+				"_" };
+		for (String caracteres : caractere) {
+			if (obj.getNome().contains(caracteres)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public boolean validaEmail(Cliente obj) {
+		boolean isEmailIdValid = false;
+		if (obj.getEmail() != null && obj.getEmail().length() > 0) {
+			String expression = "^[\\w\\.-]+@([\\w\\-]+\\.)+[A-Z]{2,4}$";
+			Pattern pattern = Pattern.compile(expression, Pattern.CASE_INSENSITIVE);
+			java.util.regex.Matcher matcher = pattern.matcher(obj.getEmail());
+			if (matcher.matches()) {
+				isEmailIdValid = true;
+			}
+		}
+		return isEmailIdValid;
+	}
 }
