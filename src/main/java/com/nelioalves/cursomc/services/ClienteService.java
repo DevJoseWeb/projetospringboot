@@ -1,9 +1,12 @@
 package com.nelioalves.cursomc.services;
 
 import java.rmi.UnexpectedException;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
+
+import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -12,7 +15,9 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import com.nelioalves.cursomc.domain.Cliente;
+import com.nelioalves.cursomc.domain.enums.TipoCliente;
 import com.nelioalves.cursomc.dto.ClienteDTO;
+import com.nelioalves.cursomc.dto.ClienteNewDto;
 import com.nelioalves.cursomc.repositories.ClienteRepository;
 
 import javassist.tools.rmi.ObjectNotFoundException;
@@ -29,31 +34,55 @@ public class ClienteService {
 				"Objeto não encontrado! Id: " + id + ", Tipo: " + Cliente.class.getName()));
 	}
 
+	@SuppressWarnings("unlikely-arg-type")
+	@Transactional
 	public Object insert(Cliente obj) throws ObjectNotFoundException {
 		obj.setId(null);
 		if (verificaNome(obj)) {
-			return clienteRepository.save(obj);
+
+			if (verificaCaractere(obj)) {
+
+				if (validaEmail(obj)) {
+
+					if (obj.getTipo().equals(TipoCliente.PESSOAFISICA)) {
+
+						if (verificaCpf(obj)) {
+
+							if (verificaCadastro(obj)) {
+								return clienteRepository.save(obj);
+
+							}
+							throw new ObjectNotFoundException("CPF já cadastrado! Id: " + obj.getCpfOuCnpj()
+									+ ", Tipo: " + Cliente.class.getName());
+						}
+						throw new ObjectNotFoundException(
+								"CPF inválido! Id: " + obj.getEmail() + ", Tipo: " + Cliente.class.getName());
+					} else if (obj.getTipo().equals(TipoCliente.PESSOAJURIDICA)) {
+
+						if (verificaCnpj(obj)) {
+
+							if (verificaCadastroJuridico(obj)) {
+								return clienteRepository.save(obj);
+							}
+							throw new ObjectNotFoundException("CNPJ já cadastrado");
+						}
+						throw new ObjectNotFoundException("CNPJ inválido");
+					}
+				}
+				throw new ObjectNotFoundException(
+						"E-mail inválido! Id: " + obj.getEmail() + ", Tipo: " + Cliente.class.getName());
+			}
+			throw new ObjectNotFoundException("O campo nome deve conter apenas letras! Id: " + obj.getNome()
+					+ ", Tipo: " + Cliente.class.getName());
 		}
-		throw new ObjectNotFoundException(
-				"O campo nome deve conter apenas letras! Id: " + obj + ", Tipo: " + Cliente.class.getName());
+		throw new ObjectNotFoundException("O campo nome deve conter de 5 a 20 caracteres e não deve ser vázio! Id: "
+				+ obj.getNome() + ", Tipo: " + Cliente.class.getName());
 	}
 
 	public Object update(Cliente obj) throws ObjectNotFoundException {
 		Cliente newObj = find(obj.getId());
 		updateData(newObj, obj);
 		return clienteRepository.save(newObj);
-
-		// if (verificaNome(newObj)) {
-		//
-		// if (validaEmail(newObj)) {
-		// return clienteRepository.save(newObj);
-		// }
-		// throw new ObjectNotFoundException(
-		// "E-mail inválido! Id: " + newObj + ", Tipo: " + Cliente.class.getName());
-		// }
-		// throw new ObjectNotFoundException(
-		// "O campo nome deve conter apenas letras! Id: " + newObj + ", Tipo: " +
-		// Cliente.class.getName());
 	}
 
 	public Page<Cliente> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
@@ -66,7 +95,7 @@ public class ClienteService {
 			try {
 				find(id);
 				clienteRepository.deleteById(id);
-				
+
 			} catch (NullPointerException e) {
 				throw new ObjectNotFoundException("O cliente não pode ser excluido");
 			}
@@ -85,6 +114,12 @@ public class ClienteService {
 		return new Cliente(dto.getId(), dto.getNome(), dto.getEmail(), null, null);
 	}
 
+	public Cliente fromDTO(ClienteNewDto dto) {
+		Cliente cliente = new Cliente(null, dto.getNome(), dto.getEmail(), dto.getCpfOuCnpj(),
+				TipoCliente.toEnum(dto.getTipo()));
+		return cliente;
+	}
+
 	public Cliente updateData(Cliente newObj, Cliente obj) {
 		newObj.setNome(obj.getNome());
 		newObj.setEmail(obj.getEmail());
@@ -99,14 +134,10 @@ public class ClienteService {
 		if (obj.getNome().length() < 5 || obj.getNome().length() > 20) {
 			return false;
 		}
+		return true;
+	}
 
-		List<Cliente> cliente = clienteRepository.findAll();
-		for (Cliente clientes : cliente) {
-			if (obj.getNome().equals(clientes.getNome())) {
-				return false;
-			}
-		}
-
+	boolean verificaCaractere(Cliente obj) {
 		String[] caractere = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "@", "!", "*", "-", "=", "/", "?",
 				"_" };
 		for (String caracteres : caractere) {
@@ -128,5 +159,109 @@ public class ClienteService {
 			}
 		}
 		return isEmailIdValid;
+	}
+
+	public boolean verificaCadastro(Cliente obj) {
+		List<Cliente> cliente = clienteRepository.findAll();
+		for (Cliente clientes : cliente) {
+			if (obj.getCpfOuCnpj().equals(clientes.getCpfOuCnpj())) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public boolean verificaCadastroJuridico(Cliente obj) {
+		List<Cliente> cliente = clienteRepository.findAll();
+		for (Cliente clientes : cliente) {
+			if (obj.getCpfOuCnpj().equals(clientes.getCpfOuCnpj())) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public boolean verificaCpf(Cliente obj) {
+		int digito10 = retornaCalculo(obj.getCpfOuCnpj().substring(0, 9).toCharArray());
+		int digito11 = retornaCalculo(obj.getCpfOuCnpj().substring(0, 10).toCharArray());
+		return obj.getCpfOuCnpj().substring(9, 11).equals((digito10 + "" + digito11));
+	}
+
+	private static int retornaCalculo(char[] cpfArray) {
+		int fator = cpfArray.length + 1;
+		int soma = 0;
+		for (int i = 0; i < cpfArray.length; i++) {
+			soma += Character.getNumericValue(cpfArray[i]) * fator--;
+		}
+		int digito = 0;
+		int mod = soma % 11;
+		if (mod == 0 || mod == 1) {
+			digito = 0;
+		} else {
+			digito = 11 - mod;
+		}
+		return digito;
+	}
+
+	public boolean verificaCnpj(Cliente obj) {
+		// considera-se erro CNPJ's formados por uma sequencia de numeros iguais
+		if (obj.getCpfOuCnpj().equals("00000000000000") || obj.getCpfOuCnpj().equals("11111111111111")
+				|| obj.getCpfOuCnpj().equals("22222222222222") || obj.getCpfOuCnpj().equals("33333333333333")
+				|| obj.getCpfOuCnpj().equals("44444444444444") || obj.getCpfOuCnpj().equals("55555555555555")
+				|| obj.getCpfOuCnpj().equals("66666666666666") || obj.getCpfOuCnpj().equals("77777777777777")
+				|| obj.getCpfOuCnpj().equals("88888888888888") || obj.getCpfOuCnpj().equals("99999999999999")
+				|| (obj.getCpfOuCnpj().length() != 14))
+			return (false);
+
+		char dig13, dig14;
+		int sm, i, r, num, peso;
+
+		// "try" - protege o código para eventuais erros de conversao de tipo (int)
+		try {
+			// Calculo do 1o. Digito Verificador
+			sm = 0;
+			peso = 2;
+			for (i = 11; i >= 0; i--) {
+				// converte o i-ésimo caractere do CNPJ em um número:
+				// por exemplo, transforma o caractere '0' no inteiro 0
+				// (48 eh a posição de '0' na tabela ASCII)
+				num = (int) (obj.getCpfOuCnpj().charAt(i) - 48);
+				sm = sm + (num * peso);
+				peso = peso + 1;
+				if (peso == 10)
+					peso = 2;
+			}
+
+			r = sm % 11;
+			if ((r == 0) || (r == 1))
+				dig13 = '0';
+			else
+				dig13 = (char) ((11 - r) + 48);
+
+			// Calculo do 2o. Digito Verificador
+			sm = 0;
+			peso = 2;
+			for (i = 12; i >= 0; i--) {
+				num = (int) (obj.getCpfOuCnpj().charAt(i) - 48);
+				sm = sm + (num * peso);
+				peso = peso + 1;
+				if (peso == 10)
+					peso = 2;
+			}
+
+			r = sm % 11;
+			if ((r == 0) || (r == 1))
+				dig14 = '0';
+			else
+				dig14 = (char) ((11 - r) + 48);
+
+			// Verifica se os dígitos calculados conferem com os dígitos informados.
+			if ((dig13 == obj.getCpfOuCnpj().charAt(12)) && (dig14 == obj.getCpfOuCnpj().charAt(13)))
+				return (true);
+			else
+				return (false);
+		} catch (InputMismatchException erro) {
+			return (false);
+		}
 	}
 }
