@@ -2,7 +2,7 @@ package com.nelioalves.cursomc.dto;
 
 import java.io.Serializable;
 
-public class ClienteNewDto implements Serializable {
+public class ClienteNewDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String nome;
 	private String email;
@@ -21,7 +21,7 @@ public class ClienteNewDto implements Serializable {
 
 	private Integer cidadeId;
 
-	public ClienteNewDto() {
+	public ClienteNewDTO() {
 		super();
 	}
 

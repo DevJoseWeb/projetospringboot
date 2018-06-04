@@ -18,7 +18,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.nelioalves.cursomc.domain.Cliente;
 import com.nelioalves.cursomc.dto.ClienteDTO;
-import com.nelioalves.cursomc.dto.ClienteNewDto;
+import com.nelioalves.cursomc.dto.ClienteNewDTO;
 import com.nelioalves.cursomc.repositories.ClienteRepository;
 import com.nelioalves.cursomc.services.ClienteService;
 
@@ -69,7 +69,7 @@ public class ClienteResource {
 	}
 
 	@RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<Void> insert(@RequestBody ClienteNewDto dto) throws ObjectNotFoundException {
+	public ResponseEntity<Void> insert(@RequestBody ClienteNewDTO dto) throws ObjectNotFoundException {
 		obj = (Cliente) clienteService.fromDTO(dto);
 		obj = (Cliente) clienteService.insert(obj);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
