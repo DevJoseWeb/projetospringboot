@@ -37,4 +37,5 @@ public class ProdutoService {
 		List<Categoria> categorias = categoriaRepository.findAllById(ids);
 		return repo.findDistinctByNomeContainingAndCategoriasIn(nome, categorias, pageRequest);
 	}
+
 }

@@ -6,46 +6,50 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.nelioalves.cursomc.services.calculate.CalculoService;
 
 @Entity
 public class ItemPedido implements Serializable {
-
 	private static final long serialVersionUID = 1L;
+
 	@JsonIgnore
 	@EmbeddedId
-	private ItemPedidoPk id = new ItemPedidoPk();
-	
+	private ItemPedidoPK id = new ItemPedidoPK();
+
 	private Double desconto;
 	private Integer quantidade;
 	private Double preco;
-	
+
 	public ItemPedido() {
-		super();
 	}
 
 	public ItemPedido(Pedido pedido, Produto produto, Double desconto, Integer quantidade, Double preco) {
 		super();
 		id.setPedido(pedido);
 		id.setProduto(produto);
-		this.setDesconto(desconto);
+		this.desconto = desconto;
 		this.quantidade = quantidade;
 		this.preco = preco;
 	}
-	
+
+	public double getSubTotal() {
+		return CalculoService.calculaSubtotal(preco, desconto, quantidade);
+	}
+
+	@JsonIgnore
 	public Pedido getPedido() {
 		return id.getPedido();
 	}
-	
+
 	public Produto getProduto() {
 		return id.getProduto();
 	}
 
-
-	public ItemPedidoPk getId() {
+	public ItemPedidoPK getId() {
 		return id;
 	}
 
-	public void setId(ItemPedidoPk id) {
+	public void setId(ItemPedidoPK id) {
 		this.id = id;
 	}
 
@@ -97,5 +101,5 @@ public class ItemPedido implements Serializable {
 			return false;
 		return true;
 	}
-	
+
 }

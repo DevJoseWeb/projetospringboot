@@ -9,6 +9,8 @@ import com.nelioalves.cursomc.domain.Pedido;
 public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
 
 
+
+
 }
 	
 	

@@ -24,4 +24,5 @@ public class PedidoResource {
 		Pedido obj = pedidoService.find(id);
 		return ResponseEntity.ok().body(obj);
 	}
+
 }

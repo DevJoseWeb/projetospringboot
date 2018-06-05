@@ -10,7 +10,7 @@ public class ProdutoDTO implements Serializable {
 	private Integer id;
 	private String nome;
 	private Double preco;
-	
+
 	public ProdutoDTO() {
 	}
 
@@ -19,7 +19,7 @@ public class ProdutoDTO implements Serializable {
 		nome = obj.getNome();
 		preco = obj.getPreco();
 	}
-	
+
 	public Integer getId() {
 		return id;
 	}

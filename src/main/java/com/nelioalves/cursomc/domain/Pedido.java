@@ -15,7 +15,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
@@ -25,9 +24,12 @@ public class Pedido implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
-	
-	@JsonFormat(pattern = "dd/HH/yyyy")
+
+	@JsonFormat(pattern = "dd/MM/yyyy HH:mm")
 	private Date instante;
+
+	@OneToOne(cascade = CascadeType.ALL, mappedBy = "pedido")
+	private Pagamento pagamento;
 
 	@ManyToOne
 	@JoinColumn(name = "cliente_id")
@@ -36,18 +38,9 @@ public class Pedido implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "endereco_de_entrega_id")
 	private Endereco enderecoDeEntrega;
-	
-	@JsonBackReference
-	@OneToMany(mappedBy="id.pedido")
+
+	@OneToMany(mappedBy = "id.pedido")
 	private Set<ItemPedido> itens = new HashSet<>();
-
-	
-	@OneToOne(cascade = CascadeType.ALL, mappedBy = "pedido")
-	private Pagamento pagamento;
-
-	public Pedido() {
-		super();
-	}
 
 	public Pedido(Integer id, Date instante, Cliente cliente, Endereco enderecoDeEntrega) {
 		super();
@@ -55,7 +48,17 @@ public class Pedido implements Serializable {
 		this.instante = instante;
 		this.cliente = cliente;
 		this.enderecoDeEntrega = enderecoDeEntrega;
-		// this.pagamento = pagamento;
+	}
+
+	public Pedido() {
+	}
+
+	public double getTotal() {
+		double soma = 0.0;
+		for (ItemPedido itemPedido : itens) {
+			soma = soma + itemPedido.getSubTotal();
+		}
+		return soma;
 	}
 
 	public Integer getId() {
@@ -74,6 +77,14 @@ public class Pedido implements Serializable {
 		this.instante = instante;
 	}
 
+	public Pagamento getPagamento() {
+		return pagamento;
+	}
+
+	public void setPagamento(Pagamento pagamento) {
+		this.pagamento = pagamento;
+	}
+
 	public Cliente getCliente() {
 		return cliente;
 	}
@@ -88,18 +99,6 @@ public class Pedido implements Serializable {
 
 	public void setEnderecoDeEntrega(Endereco enderecoDeEntrega) {
 		this.enderecoDeEntrega = enderecoDeEntrega;
-	}
-
-	public Pagamento getPagamento() {
-		return pagamento;
-	}
-
-	public void setPagamento(Pagamento pagamento) {
-		this.pagamento = pagamento;
-	}
-
-	public static long getSerialversionuid() {
-		return serialVersionUID;
 	}
 
 	public Set<ItemPedido> getItens() {
